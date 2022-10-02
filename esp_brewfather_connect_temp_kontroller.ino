@@ -52,6 +52,7 @@ float temperature_read;
 float temperature_read_avg;
 float sum;
 int t = 0;
+bool mode = false; //need to install a physical swith to change this bool
 
 //TEMPERATUR
 volatile int set_temperature = 20; //må ha dette som volatile for å kunne bruke variablen i en interrupt ISR funksjon
@@ -84,6 +85,20 @@ void setup(){
   }
   
   readThermocouple();
+
+  // THERMOMETER MODE
+  while(mode == true) {
+    temperature_read = readThermocouple();
+    display.setTextSize(2);
+    display.setTextColor(WHITE);
+    display.setCursor(10, 5);  
+    display.clearDisplay();
+    display.print("T: ");
+    display.print(temperature_read,1);
+    display.print("C");
+    delay(1000);
+  }
+
   connect_to_wifi();
 
   pinMode(btn_s_down, INPUT_PULLDOWN);
