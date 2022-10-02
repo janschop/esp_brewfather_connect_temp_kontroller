@@ -1,7 +1,6 @@
 
 // https://randomnerdtutorials.com/esp32-ssd1306-oled-display-arduino-ide/
 
-// ideer: har en bryter som skrur av og på om den skal koble seg opp på nette, så man kan bruke den som rent termometer
 #include <WiFi.h>
 #include <ArduinoHttpClient.h>
 #include <SPI.h>
