@@ -84,7 +84,7 @@ void setup(){
     for(;;); 
   }
   
-  readThermocouple();
+  readThermocouple(); //prevents startup error
   connect_to_wifi();
 
   pinMode(btn_s_down, INPUT_PULLDOWN);
@@ -96,11 +96,11 @@ void setup(){
 void loop(){
 
   float s = 0;
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 10; i++) { //checks and controlls 10 times for each post cycle
     
     s += get_avg_temp_n_controll();
   }  
-  Post(s/10);
+  Post(s/10); // brewfather can't be posted to more than every 15 minutes
 }
 
 float get_avg_temp_n_controll() {
@@ -197,7 +197,7 @@ void Post(double temp) {
 void activate_sw(int pin) {
   pinMode(pin,OUTPUT);
   digitalWrite(pin,HIGH);
-  delay(300); // må sjekke om tiden her er nok
+  delay(300); // so the receiver has enough time to get the signal (?)
   digitalWrite(pin,LOW);
 
   Serial.print("activating: ");
@@ -216,7 +216,7 @@ void connect_to_wifi() {
   display.setCursor(50,30);
   int i = 0;
   while (WiFi.status() != WL_CONNECTED) {
-    if (i == 5){
+    if (i == 5){ // if the unit is not connected to wifi within 5 seconds, it restards
         ESP.restart();
     }
     else {
@@ -266,5 +266,5 @@ double readThermocouple() {
     v >>= 3;
 
     // The remaining bits are the number of 0.25 degree (C) counts
-    return v*0.25-3; //målte kokende vann til 102.75, så trekker det i fra
+    return v*0.25-3; // measured boiling water at 102.75 degrees (C), adjusted the outputvalue
 }
