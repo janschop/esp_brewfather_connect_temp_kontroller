@@ -3,5 +3,6 @@
     "board": "esp32:esp32:esp32doit-devkit-v1",
     "programmer": "esp32:esptool",
     "port": "COM4",
-    "sketch": "esp_brewfather_connect_temp_kontroller.ino"
+    "sketch": "esp_brewfather_connect_temp_kontroller.ino",
+    "output": "C:\\Users\\Jan Erik\\Documents\\Arduino\\output\\esp_git"
 }

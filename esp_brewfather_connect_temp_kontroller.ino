@@ -75,18 +75,7 @@ void set_temp_decrease() {
   }
 }
 
-
-void setup(){
-  Serial.begin(115200);
-  delay(10);
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
-    Serial.println(F("SSD1306 allocation failed"));
-    for(;;); 
-  }
-  
-  readThermocouple();
-
-  // THERMOMETER MODE
+void thermometer_mode(bool mode) { //if true, unit will be "stuck" just choing the temperature
   while(mode == true) {
     temperature_read = readThermocouple();
     display.setTextSize(2);
@@ -98,6 +87,19 @@ void setup(){
     display.print("C");
     delay(1000);
   }
+}
+
+void setup(){
+  Serial.begin(115200);
+  delay(10);
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;); 
+  }
+  
+  readThermocouple();
+
+  thermometer_mode(mode);
 
   connect_to_wifi();
 
