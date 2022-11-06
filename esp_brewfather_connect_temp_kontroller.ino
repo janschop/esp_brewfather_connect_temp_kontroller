@@ -177,13 +177,12 @@ void Post(double temp) {
   int setT_int = set_temperature;
   Serial.println(String(setT_int));
   
-  String json = "{\n \"name\": \"PNS-tempcontroll\",\n \"temp\": ";
-    
+  String json = "{\n \"name\": \"PNS-tempcontroll\",\n \"temp\": ";  
   json += String (temp, 1);
+  json += ",\n \"aux_temp\": ";// "fridge" temp
+  json += String(setT_int); //får ikke omgjort volatile int til string
   json += ",\n \"temp_unit\": \"C\", \n \"comment\": \"";
   json += t_state;
-  json += ", SET TEMP: ";
-  json += String(setT_int); //får ikke omgjort volatile int til string
   json += "\" \n}";
    
     HttpClient client(wifi, "log.brewfather.net", 80);
