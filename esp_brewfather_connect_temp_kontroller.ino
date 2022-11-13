@@ -1,7 +1,7 @@
 
 // https://randomnerdtutorials.com/esp32-ssd1306-oled-display-arduino-ide/
+// https://randomnerdtutorials.com/esp32-web-server-arduino-ide/
 
-// ideer: har en bryter som skrur av og på om den skal koble seg opp på nette, så man kan bruke den som rent termometer
 #include <WiFi.h>
 #include <ArduinoHttpClient.h>
 #include <SPI.h>
@@ -71,6 +71,7 @@ volatile int set_temperature = 20; //må ha dette som volatile for å kunne bruk
 double dT = 1; //tillat avvik fra set_temp
 int temp_ctrl_activity;
 
+
 void set_temp_increase() {
   if (t+200<millis()){
    set_temperature ++;
@@ -109,13 +110,13 @@ void setup(){
 }
 
 void loop(){
-  checkClient();
-  /*float s = 0;
+  
+  float s = 0;
   for (int i = 0; i < 10; i++) { //checks and controlls 10 times for each post cycle
     
     s += get_avg_temp_n_controll();
   }  
-  Post(s/10);*/ // brewfather can't be posted to more than every 15 minutes
+  Post(s/10); // brewfather can't be posted to more than every 15 minutes
 }
 
 void checkClient(){
@@ -134,6 +135,7 @@ void checkClient(){
         if (c == '\n') {                    // if the byte is a newline character
           // if the current line is blank, you got two newline characters in a row.
           // that's the end of the client HTTP request, so send a response:
+          
           if (currentLine.length() == 0) {
             // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
             // and a content-type so the client knows what's coming, then a blank line:
@@ -142,14 +144,15 @@ void checkClient(){
             client.println("Connection: close");
             client.println();
             
-            // turns the GPIOs on and off
-            if (header.indexOf("GET /27/on") >= 0) {
-              Serial.println("GPIO 27 on");
-              output27State = "on";
-              
-            } else if (header.indexOf("GET /27/off") >= 0) {
-              Serial.println("GPIO 27 off");
-              output27State = "off";
+            // set temp increase
+            if (header.indexOf("GET /s+") >= 0) {
+              Serial.println("s+");
+              set_temp_increase();              
+            } 
+            // set temp decrease
+            else if (header.indexOf("GET /s-") >= 0) {
+              Serial.println("s-");
+              set_temp_decrease();
             }
             
             // Display the HTML web page
@@ -157,7 +160,6 @@ void checkClient(){
             client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
             client.println("<link rel=\"icon\" href=\"data:,\">");
             // CSS to style the on/off buttons 
-            // Feel free to change the background-color and font-size attributes to fit your preferences
             client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
             client.println(".button { background-color: #4CAF50; border: none; color: white; padding: 16px 40px;");
             client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
@@ -166,14 +168,13 @@ void checkClient(){
             // Web Page Heading
             client.println("<body><h1>PNS Web Server</h1>");
                
-            // Display current state, and ON/OFF buttons for GPIO 27  
-            client.println("<p>GPIO 27 - State " + output27State + "</p>");
-            // If the output27State is off, it displays the ON button       
-            if (output27State=="off") {
-              client.println("<p><a href=\"/27/on\"><button class=\"button\">ON</button></a></p>");
-            } else {
-              client.println("<p><a href=\"/27/off\"><button class=\"button button2\">OFF</button></a></p>");
-            }
+            // Display current set temp 
+            int setT_int = set_temperature; //for conversion to String 
+            client.println("<p>Set temperature: " + String(setT_int) + "C</p>");
+            
+            // Buttons       
+            client.println("<p><a href=\"/s+\"><button class=\"button\">+</button></a></p>");
+            client.println("<p><a href=\"/s-\"><button class=\"button\">-</button></a></p>");
             client.println("</body></html>");
             
             // The HTTP response ends with another blank line
@@ -234,7 +235,7 @@ float get_avg_temp_n_controll() {
       */
     display.display();
     
-    
+    checkClient(); //checing the client as often as possible (this loop runs the most)
 
     delay(read_time);
   }
@@ -268,8 +269,8 @@ void temp_compare(double temp) {
 }
 
 void Post(double temp) {
-  
-  int setT_int = set_temperature;
+  int setT_int = set_temperature; //for conversion to String
+
   Serial.println(String(setT_int));
   
   String json = "{\n \"name\": \"PNS-tempcontroll\",\n \"temp\": ";  
@@ -329,7 +330,7 @@ void connect_to_wifi() {
   display.display();
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-  delay(10000);
+  delay(1000); //maybe loner if the host ip changes
 }
 
 double readThermocouple() {
