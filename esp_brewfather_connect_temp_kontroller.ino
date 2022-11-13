@@ -36,7 +36,11 @@ const char* ssid = "Telenor5581par"; fff
 const char* password = "Agensleddet7Italienskene8";
 */
 
-WiFiClient wifi;
+WiFiClient wifi; //init for sending data to webserver
+
+WiFiServer server (80);
+String header;
+
 
 //pins
 /*const int fridge_on = 32; // må endres ut ifra onenote
@@ -215,22 +219,24 @@ void connect_to_wifi() {
   display.setCursor(50,30);
   int i = 0;
   while (WiFi.status() != WL_CONNECTED) {
-    if (i == 5){ // if the unit is not connected to wifi within 5 seconds, it restards
+    if (i == 10){ // if the unit is not connected to wifi within 5 seconds, it restards
         ESP.restart();
     }
     else {
       Serial.print(".");
       display.print(".");
       display.display();
-      delay(1000);
+      delay(500);
       i ++;
     }
   }
   display.clearDisplay();
   display.setCursor(10, 10); 
   display.print("WiFi connected!");
+  display.setCursor(5,20);
+  display.print(WiFi.localIP());
   display.display();
-  delay(1000);
+  delay(10000);
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 }
